@@ -14,4 +14,4 @@ its consequences.
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| —   | —     | —      |
+| [0001](0001-aws-and-databricks-lakehouse.md) | AWS and Databricks lakehouse | Proposed |
