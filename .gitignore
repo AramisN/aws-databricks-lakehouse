@@ -55,3 +55,18 @@ logs/
 .project
 .classpath
 .settings/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+credentials
+.databrickscfg
+aws.json
+
+# Generated data (commit the generator, not the output)
+data/
+*.parquet
+*.csv
+!**/sample/*.csv
