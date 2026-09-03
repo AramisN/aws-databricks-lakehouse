@@ -12,6 +12,7 @@ its consequences.
 | [0002](0002-databricks-over-emr.md) | choosing Databricks over EMR | Proposed |
 | [0003](0003-region-frankfurt.md) | Frankfurt (eu-central-1) as the region | Proposed |
 | [0004](0004-ride-hailing-dataset.md) | Ride-hailing as the dataset domain | Proposed |
+| [0005](0005-source-control-and-ci.md) | Source control and CI | Proposed |
 
 ## ADR status model
 Status tells a reader where a decision stands. It says nothing about whether the thing is built yet. Build state lives in the README status table and is tracked separately.
