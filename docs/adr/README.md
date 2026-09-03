@@ -13,6 +13,7 @@ its consequences.
 | [0003](0003-region-frankfurt.md) | Frankfurt (eu-central-1) as the region | Proposed |
 | [0004](0004-ride-hailing-dataset.md) | Ride-hailing as the dataset domain | Proposed |
 | [0005](0005-source-control-and-ci.md) | Source control and CI | Proposed |
+| [0006](0006-pii-gdpr-governance-lineage.md) | PII, GDPR, governance, and lineage | Proposed |
 
 ## ADR status model
 Status tells a reader where a decision stands. It says nothing about whether the thing is built yet. Build state lives in the README status table and is tracked separately.
