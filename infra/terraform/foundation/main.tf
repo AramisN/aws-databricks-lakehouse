@@ -1,7 +1,46 @@
+# Account id used to make bucket names globally unique, matching the
+# convention bootstrap uses for the state bucket.
+data "aws_caller_identity" "current" {}
+
 # The VPC and private subnets this environment runs in.
 module "network" {
   source = "../modules/network"
 
   name_prefix = "adl-dev"
   region      = "eu-central-1"
+}
+
+# The four medallion-layer buckets. Raw gets a short retention window
+# per the data contract's erasure requirements; the rest keep everything.
+module "raw_bucket" {
+  source = "../modules/lake_bucket"
+
+  bucket_name = "adl-dev-raw-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn = var.kms_key_arn
+  component   = "raw"
+  expire_days = 7
+}
+
+module "bronze_bucket" {
+  source = "../modules/lake_bucket"
+
+  bucket_name = "adl-dev-bronze-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn = var.kms_key_arn
+  component   = "bronze"
+}
+
+module "silver_bucket" {
+  source = "../modules/lake_bucket"
+
+  bucket_name = "adl-dev-silver-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn = var.kms_key_arn
+  component   = "silver"
+}
+
+module "gold_bucket" {
+  source = "../modules/lake_bucket"
+
+  bucket_name = "adl-dev-gold-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn = var.kms_key_arn
+  component   = "gold"
 }
