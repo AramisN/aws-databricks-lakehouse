@@ -23,6 +23,22 @@ jobs:
       TF_IN_AUTOMATION: "true"
       TF_INPUT: "false"
     steps:
+      # TEMPORARY: remove once the OIDC sub claim is confirmed to match
+      # the trust policy's StringLike condition. Needs no AWS credentials.
+      - name: debug OIDC subject
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.info(`github.repository: ${context.repo.owner}/${context.repo.repo}`)
+            core.info(`github.ref: ${context.ref}`)
+            core.info(`github.event_name: ${context.eventName}`)
+            core.info(`github.actor: ${context.actor}`)
+
+            const idToken = await core.getIDToken('sts.amazonaws.com')
+            const payload = idToken.split('.')[1]
+            const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
+            core.info(`OIDC sub claim: ${claims.sub}`)
+
       - name: Checkout
         uses: actions/checkout@v4
 
