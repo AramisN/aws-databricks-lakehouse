@@ -108,7 +108,10 @@ data "aws_iam_policy_document" "ci_trust" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:*"]
+      # GitHub now includes immutable owner and repo ids in the OIDC
+      # subject (repo:OWNER@owner_id/REPO@repo_id:...), so the pattern
+      # must include them to keep matching.
+      values = ["repo:AramisN@29594407/aws-databricks-lakehouse@1353786437:*"]
     }
   }
 }
