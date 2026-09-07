@@ -15,9 +15,9 @@ Class is what the field is.
 Handling is what happens to it past the raw layer.
 
 - keep, safe to carry as-is
-- mask, hidden in analytics views through Unity Catalog, visible only in a restricted role
-- hash, deterministic hash so joins still work, raw value not recoverable
-- token, raw value moved to a restricted vault, replaced by a token
+- restricted, stays in the raw zone only, visible to the restricted role, never carried downstream
+- mask, hidden in analytics views through Unity Catalog when a direct identifier must sit in a table, visible only to the restricted role
+- hash, deterministic hash for cases needing correlation without keeping the raw value
 - generalize, coarsened, an age band instead of a birthdate, a zone instead of an address
 - drop, not carried past raw at all
 
@@ -28,10 +28,10 @@ Handling is what happens to it past the raw layer.
 | Field | Type | Key | PII | Handling |
 |---|---|---|---|---|
 | rider_id | bigint | PK | quasi | keep |
-| first_name | text | | direct | mask |
-| last_name | text | | direct | mask |
-| email | text | | direct | hash + token |
-| phone | text | | direct | hash + token |
+| first_name | text | | direct | restricted |
+| last_name | text | | direct | restricted |
+| email | text | | direct | restricted |
+| phone | text | | direct | restricted |
 | date_of_birth | date | | quasi | generalize to age band |
 | home_zone_id | int | FK zones | location | keep, zone only |
 | home_address | text | | direct | drop, zone kept instead |
@@ -43,11 +43,11 @@ Handling is what happens to it past the raw layer.
 | Field | Type | Key | PII | Handling |
 |---|---|---|---|---|
 | driver_id | bigint | PK | quasi | keep |
-| first_name | text | | direct | mask |
-| last_name | text | | direct | mask |
-| email | text | | direct | hash + token |
-| phone | text | | direct | hash + token |
-| license_number | text | | direct | token |
+| first_name | text | | direct | restricted |
+| last_name | text | | direct | restricted |
+| email | text | | direct | restricted |
+| phone | text | | direct | restricted |
+| license_number | text | | direct | restricted |
 | vehicle_id | bigint | FK vehicles | none | keep |
 | rating | numeric | | none | keep |
 | onboarded_ts | timestamp | | none | keep |
@@ -108,8 +108,8 @@ Handling is what happens to it past the raw layer.
 | trip_id | bigint | FK trips | none | keep |
 | event_type | text | | none | keep, one of requested/accepted/started/pos_update/completed/cancelled |
 | event_ts | timestamp | | none | keep |
-| lat | double | | location | token raw, generalize to zone in analytics |
-| lon | double | | location | token raw, generalize to zone in analytics |
+| lat | double | | location | restricted in raw, generalize to zone downstream |
+| lon | double | | location | restricted in raw, generalize to zone downstream |
 | speed_kmh | double | | none | keep |
 
 ## Logs, S3 raw
@@ -155,7 +155,7 @@ The trip is the hub. Riders, drivers, vehicles, and payments join to it by key. 
 
 ## Right to erasure
 
-A deletion request runs as a Delta DELETE against the synthetic tables, followed by VACUUM so the files are actually gone. The token vault mapping for that person is destroyed too, so the pseudonymous keys can never be tied back to a real identity. A reconciliation check confirms the person is absent across raw, bronze, silver, and gold before the request is marked done.
+A deletion request runs as a Delta DELETE against the synthetic tables, followed by VACUUM past the retention window so the old versions are actually gone, not just logically removed. No token vault is involved; this project owns every copy of the data, so a hard delete plus VACUUM reaches all of it. A reconciliation check confirms the person is absent across raw, bronze, silver, and gold before the request is marked done.
 
 ## Retention
 

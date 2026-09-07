@@ -9,27 +9,27 @@ How personal data gets classified, protected, traced, and deleted across the thr
 
 ## The call
 
-Unity Catalog is the one place classification, access, masking, and lineage are controlled. Raw personal data sits in a restricted area that almost no one can read. Everything downstream sees it masked, hashed, or generalized. To erase someone, I delete the record and destroy the token mapping that ties it back to them, then prove it's gone across every layer.
+Unity Catalog is the one place classification, access, masking, and lineage are controlled. Direct identifiers live only in a restricted raw zone and never flow downstream. Analytics joins on surrogate keys like rider_id, which don't identify anyone on their own. To erase someone, I hard delete their rows and VACUUM the history past retention. Then a check proves they're gone across every layer.
 
 ## Where governance runs
 
-Unity Catalog sits over every table, so classification and access and lineage come from one place instead of being wired up tool by tool. Columns carry tags from the PII map in the data contract, and those tags drive the masking rules. Access is role based, and one restricted role can read raw personal data. That role is there mainly for erasure and audits. Every other role sees the masked and generalized views, so day to day analytics never touches a raw identifier.
+Unity Catalog sits over every table, so classification and access and lineage come from one place instead of being wired up tool by tool. Columns carry tags from the PII map in the data contract, and those tags drive the masking rules. Access is role based, and one restricted role can read the raw identifiers. That role is there mainly for erasure and audits. Every other role sees the minimized views, so day to day analytics never touches a direct identifier.
 
 ## How each kind of field is handled
 
-- mask, a Unity Catalog column mask hides the value and shows it only to the restricted role.
-- generalize, a birthdate becomes an age band and an address becomes a zone, done in the transform into bronze.
-- hash, join-key identifiers get a deterministic hash so joins still work and the raw value can't be read back.
-- token, the raw value moves to a restricted vault and the table keeps only a token.
-- drop, the field never leaves the raw layer.
+- restricted, direct identifiers like name and email and license number stay in the raw zone and never reach analytics.
+- generalize, a birthdate becomes an age band and precise location becomes a zone in the transform into bronze.
+- mask, when a direct identifier must sit in a table a Unity Catalog column mask hides it from every role but the restricted one.
+- hash, a keyed hash for cases like the IP in the logs where I need to correlate but not keep the raw value.
+- drop, the field never leaves raw at all.
 
 ## The hard part, erasure on a lakehouse
 
-This is the part worth getting right, because a data lake fights deletion. A Delta DELETE only removes the record logically. Time travel still holds the old versions until VACUUM clears them past the retention window. So erasure isn't finished at the DELETE, it's finished once the history is vacuumed. That's why retention on personal data has to be short enough to hit the deletion deadline.
+This is the part worth getting right, because a data lake fights deletion. A Delta DELETE only removes a record logically. Time travel still holds the old versions until VACUUM clears them past the retention window. So erasure isn't finished at the DELETE, it's finished once the history is vacuumed. That's why retention on personal data is kept short, short enough to hit the deletion deadline. Being able to do this at all is one reason I picked Delta, plain parquet on a lake can't.
 
-The lever I lean on is the token vault. Identifiers are tokenized, so destroying a person's mapping makes every token that points at them meaningless. That holds even in copies I can't easily reach. The DELETE and VACUUM then clean the tables themselves. A reconciliation check confirms the person is gone from raw, bronze, silver, and gold before the request is closed.
+I deliberately did not build a token vault or crypto-shredding. That technique is for data you can't reach to delete, like immutable backups or copies a third party holds. This project owns every copy and tears the whole thing down between sessions, so a hard delete reaches everything. Adding a vault would be one more load-bearing thing to secure and maintain, for compliance I already have without it. Knowing when not to reach for it matters as much as knowing it exists.
 
-The streaming path works the same way. GPS points in the event stream are tokenized at the raw boundary and generalized to a zone downstream, so a trip can be erased without digging through raw pings.
+The streaming path works the same way. GPS pings land in restricted raw with short retention and get generalized to a zone downstream. A trip is erased by deleting its rows and vacuuming, nothing special.
 
 ## Encryption and secrets
 
@@ -41,10 +41,10 @@ Unity Catalog records table and column lineage for anything that runs through it
 
 ## What I'm giving up
 
-Tokenization and masking add steps to every model and a vault to maintain, so there's real work here that a project without privacy rules would skip. Short retention on raw personal data means I can't keep a long raw history for reprocessing. Both are what doing GDPR properly costs, and that's the point.
+Keeping direct identifiers out of analytics and running erasure across layers is real work a project without privacy rules would skip. Short retention on raw personal data means I can't hold a long raw history for reprocessing. Both are what doing GDPR properly costs, and that's the point.
 
 ## What would flip this
 
+- Copies I can't reach enter the picture, immutable backups or data shared with a third party. Then crypto-shredding earns its place and I add per-subject keys.
 - A native AWS build with no Databricks. Then Lake Formation carries tag-based access and masking, and lineage comes from Glue plus something like OpenLineage.
-- A rule that personal data can't land unencrypted even in the restricted zone. Then tokenize at ingestion, before anything gets written.
 - Real subjects and a real regulator. Then the erasure deadline and audit logging get much stricter, and this ADR gets revisited hard.
