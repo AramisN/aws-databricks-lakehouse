@@ -43,36 +43,36 @@ module "access_logs_bucket" {
 module "raw_bucket" {
   source = "../modules/lake_bucket"
 
-  bucket_name            = "adl-dev-raw-${data.aws_caller_identity.current.account_id}"
-  kms_key_arn            = var.kms_key_arn
-  component              = "raw"
-  expire_days            = 7
-  logging_target_bucket  = module.access_logs_bucket.bucket_name
+  bucket_name           = "adl-dev-raw-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn           = var.kms_key_arn
+  component             = "raw"
+  expire_days           = 7
+  logging_target_bucket = module.access_logs_bucket.bucket_name
 }
 
 module "bronze_bucket" {
   source = "../modules/lake_bucket"
 
-  bucket_name            = "adl-dev-bronze-${data.aws_caller_identity.current.account_id}"
-  kms_key_arn            = var.kms_key_arn
-  component              = "bronze"
-  logging_target_bucket  = module.access_logs_bucket.bucket_name
+  bucket_name           = "adl-dev-bronze-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn           = var.kms_key_arn
+  component             = "bronze"
+  logging_target_bucket = module.access_logs_bucket.bucket_name
 }
 
 module "silver_bucket" {
   source = "../modules/lake_bucket"
 
-  bucket_name            = "adl-dev-silver-${data.aws_caller_identity.current.account_id}"
-  kms_key_arn            = var.kms_key_arn
-  component              = "silver"
-  logging_target_bucket  = module.access_logs_bucket.bucket_name
+  bucket_name           = "adl-dev-silver-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn           = var.kms_key_arn
+  component             = "silver"
+  logging_target_bucket = module.access_logs_bucket.bucket_name
 }
 
 module "gold_bucket" {
   source = "../modules/lake_bucket"
 
-  bucket_name            = "adl-dev-gold-${data.aws_caller_identity.current.account_id}"
-  kms_key_arn            = var.kms_key_arn
-  component              = "gold"
-  logging_target_bucket  = module.access_logs_bucket.bucket_name
+  bucket_name           = "adl-dev-gold-${data.aws_caller_identity.current.account_id}"
+  kms_key_arn           = var.kms_key_arn
+  component             = "gold"
+  logging_target_bucket = module.access_logs_bucket.bucket_name
 }
