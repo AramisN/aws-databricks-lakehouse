@@ -78,9 +78,11 @@ resource "aws_default_security_group" "this" {
 }
 
 # CloudWatch log group VPC flow logs are written to.
+#checkov:skip=CKV_AWS_338: dev flow logs kept 14 days on purpose for cost, one-year retention not needed here
 resource "aws_cloudwatch_log_group" "flow_logs" {
   name              = "/aws/vpc-flow-logs/${var.name_prefix}"
   retention_in_days = 14
+  kms_key_id        = var.kms_key_arn
 
   tags = {
     Name      = "${var.name_prefix}-flow-logs"

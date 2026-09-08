@@ -8,6 +8,7 @@ module "network" {
 
   name_prefix = "adl-dev"
   region      = "eu-central-1"
+  kms_key_arn = var.kms_key_arn
 }
 
 # Every other bucket sends S3 access logs here. Not given a

@@ -19,3 +19,8 @@ variable "region" {
   description = "AWS region the VPC is created in."
   type        = string
 }
+
+variable "kms_key_arn" {
+  description = "ARN of the KMS key used to encrypt the VPC flow logs CloudWatch log group."
+  type        = string
+}

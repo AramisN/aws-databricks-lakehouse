@@ -5,6 +5,9 @@ data "aws_caller_identity" "current" {}
 # key material ages out automatically without a manual rewrap.
 # Explicit key policy: the account root always has full control, so
 # IAM-based grants keep working and nobody can get locked out of the key.
+#checkov:skip=CKV_AWS_109: this IS the AWS-recommended root key policy that prevents lockout; broad access to account root is intended
+#checkov:skip=CKV_AWS_111: this IS the AWS-recommended root key policy that prevents lockout; broad access to account root is intended
+#checkov:skip=CKV_AWS_356: this IS the AWS-recommended root key policy that prevents lockout; broad access to account root is intended
 data "aws_iam_policy_document" "tfstate_kms" {
   statement {
     sid       = "EnableRootFullAccess"
@@ -15,6 +18,32 @@ data "aws_iam_policy_document" "tfstate_kms" {
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+
+  # Lets CloudWatch Logs use this key to encrypt the VPC flow logs log
+  # group, scoped to log groups in this account/region only.
+  statement {
+    sid    = "AllowCloudWatchLogsEncryption"
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*",
+    ]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["logs.eu-central-1.amazonaws.com"]
+    }
+
+    condition {
+      test     = "ArnLike"
+      variable = "kms:EncryptionContext:aws:logs:arn"
+      values   = ["arn:aws:logs:eu-central-1:${data.aws_caller_identity.current.account_id}:*"]
     }
   }
 }
@@ -101,7 +130,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "tfstate" {
     id     = "abort-incomplete-multipart-uploads"
     status = "Enabled"
 
-    filter {}
+    filter {
+      prefix = ""
+    }
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
