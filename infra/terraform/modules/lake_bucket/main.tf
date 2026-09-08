@@ -78,7 +78,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   rule {
-    id     = "abort-incomplete-multipart-uploads"
+    id     = var.expire_days > 0 ? "expire-and-abort-incomplete-multipart-uploads" : "abort-incomplete-multipart-uploads"
     status = "Enabled"
 
     filter {
@@ -88,21 +88,17 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
-  }
 
-  dynamic "rule" {
-    for_each = var.expire_days > 0 ? [1] : []
-    content {
-      id     = "expire-after-${var.expire_days}-days"
-      status = "Enabled"
-
-      filter {}
-
-      expiration {
+    dynamic "expiration" {
+      for_each = var.expire_days > 0 ? [1] : []
+      content {
         days = var.expire_days
       }
+    }
 
-      noncurrent_version_expiration {
+    dynamic "noncurrent_version_expiration" {
+      for_each = var.expire_days > 0 ? [1] : []
+      content {
         noncurrent_days = var.expire_days
       }
     }

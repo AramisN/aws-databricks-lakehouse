@@ -58,6 +58,8 @@ jobs:
           directory: infra/terraform
           framework: terraform
           soft_fail: false
+          config_file: .checkov.yaml
+          baseline: .checkov.baseline
 
       - name: Terraform plan
         run: |

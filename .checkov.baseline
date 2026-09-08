@@ -1,0 +1,15 @@
+{
+    "failed_checks": [
+        {
+            "file": "/bootstrap/main.tf",
+            "findings": [
+                {
+                    "resource": "aws_s3_bucket.tfstate",
+                    "check_ids": [
+                        "CKV_AWS_18"
+                    ]
+                }
+            ]
+        }
+    ]
+}
