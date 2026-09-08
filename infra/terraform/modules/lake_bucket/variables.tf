@@ -18,3 +18,15 @@ variable "expire_days" {
   type        = number
   default     = 0
 }
+
+variable "logging_target_bucket" {
+  description = "Name of the bucket to send S3 access logs to. Empty string disables logging."
+  type        = string
+  default     = ""
+}
+
+variable "extra_policy_statements" {
+  description = "Additional bucket policy statements (as objects) merged into this bucket's policy, e.g. for the S3 logging service principal."
+  type        = list(any)
+  default     = []
+}

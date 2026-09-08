@@ -27,3 +27,8 @@ output "gold_bucket_name" {
   description = "Name of the gold layer S3 bucket."
   value       = module.gold_bucket.bucket_name
 }
+
+output "access_logs_bucket_name" {
+  description = "Name of the S3 access-logs bucket."
+  value       = module.access_logs_bucket.bucket_name
+}

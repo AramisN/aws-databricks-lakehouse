@@ -3,9 +3,26 @@ data "aws_caller_identity" "current" {}
 
 # KMS key that encrypts the Terraform state bucket. Rotation on so the
 # key material ages out automatically without a manual rewrap.
+# Explicit key policy: the account root always has full control, so
+# IAM-based grants keep working and nobody can get locked out of the key.
+data "aws_iam_policy_document" "tfstate_kms" {
+  statement {
+    sid       = "EnableRootFullAccess"
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
+
 resource "aws_kms_key" "tfstate" {
   description         = "Encrypts Terraform remote state for aws-databricks-lakehouse."
   enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.tfstate_kms.json
 }
 
 # Friendly alias so the key can be referenced by name instead of ARN.
@@ -15,6 +32,9 @@ resource "aws_kms_alias" "tfstate" {
 }
 
 # The bucket that holds every layer's Terraform state after bootstrap.
+#checkov:skip=CKV_AWS_18: terraform state bucket, versioned and KMS-encrypted, access logging adds a second bucket in bootstrap for little value
+#checkov:skip=CKV_AWS_144: single region by design, see ADR-0003
+#checkov:skip=CKV2_AWS_62: no event consumer for state, not needed
 resource "aws_s3_bucket" "tfstate" {
   bucket = "${var.state_bucket_name}-${data.aws_caller_identity.current.account_id}"
 }
@@ -71,6 +91,22 @@ resource "aws_s3_bucket_policy" "tfstate" {
       }
     ]
   })
+}
+
+# Cleans up incomplete multipart uploads after 7 days.
+resource "aws_s3_bucket_lifecycle_configuration" "tfstate" {
+  bucket = aws_s3_bucket.tfstate.id
+
+  rule {
+    id     = "abort-incomplete-multipart-uploads"
+    status = "Enabled"
+
+    filter {}
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
 }
 
 # Fetches GitHub's current TLS certificate so the OIDC provider's
