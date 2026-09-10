@@ -16,6 +16,7 @@ its consequences.
 | [0006](0006-pii-gdpr-governance-lineage.md) | PII, GDPR, governance, and lineage | Proposed |
 | [0007](0007-terraform-structure-and-state.md) | Terraform structure and state | Proposed |
 | [0008](0008-synthetic-data-generator-and-local-source.md) | The synthetic data generator and its local source | Proposed |
+| [0009](0009-streaming-events-through-kinesis.md) | Streaming the trip events through Kinesis | Proposed |
 
 ## ADR status model
 Status tells a reader where a decision stands. It says nothing about whether the thing is built yet. Build state lives in the README status table and is tracked separately.
