@@ -2,6 +2,11 @@
 
 A reference build of a lakehouse platform on AWS with Databricks. It uses S3 for storage, Unity Catalog for governance, and Delta Lake for the table format, with all the infrastructure managed in Terraform. The repo holds two things, the target design in the docs and ADRs, and the infrastructure-as-code that stands it up.
 
+## Documentation
+
+Architecture decisions live in [docs/adr](docs/adr/README.md) — start there for the why behind
+the choices below. For how to bring the infrastructure up and down, see [infra](infra/README.md).
+
 ## Status: designed vs built
 
 | Component               | Designed | Built | Notes                                             |
