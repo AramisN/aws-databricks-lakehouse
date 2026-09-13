@@ -13,6 +13,9 @@ RIDERS = 50
 DRIVERS = 10
 
 
+# Builds one Entities result for a given seed, so each test is just its assertion.
+# e.g. _build(42) -> Entities(zones=[... 8 zones], riders=[... 50 riders],
+#                              drivers=[... 10 drivers], vehicles=[... 10 vehicles])
 def _build(seed: int) -> Entities:
     rng = random.Random(seed)
     faker = Faker()
@@ -20,18 +23,21 @@ def _build(seed: int) -> Entities:
     return build(rng, faker, riders=RIDERS, drivers=DRIVERS, zones_csv=ZONES_CSV)
 
 
+# Same seed, twice, should give back identical entities.
 def test_same_seed_is_identical() -> None:
     first = _build(42)
     second = _build(42)
     assert first == second
 
 
+# Different seeds should give back different entities.
 def test_different_seed_differs() -> None:
     a = _build(42)
     b = _build(99)
     assert a != b
 
 
+# Every rider/driver home_zone_id and vehicle driver_id should point at a real row.
 def test_foreign_keys_resolve() -> None:
     result = _build(42)
 

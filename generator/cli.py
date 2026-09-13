@@ -4,12 +4,20 @@ from pathlib import Path
 import typer
 from faker import Faker
 
-from generator import entities
+from generator import entities, files, load, mess
+from generator import trips as trip_gen
 from generator.config import settings
 
 app = typer.Typer()
 
 
+# The "generate" CLI command: builds entities and trips, messes them up, then
+# prints a summary of the final (messy) counts.
+# e.g. uv run python -m generator.cli --seed 42 --riders 5 --drivers 3 --trips 4 \
+#        --zones-csv generator/tests/sample/zones.csv
+#   -> built 8 zones, 5 riders, 3 drivers, 3 vehicles, 4 trips, 192 trip events
+#   (192 instead of the clean 190 - mess.corrupt() duplicated 2 events, at the
+#   default dup_rate)
 @app.command()
 def generate(
     seed: int = typer.Option(settings.seed, help="Seed for the rng and Faker."),
@@ -43,11 +51,25 @@ def generate(
     faker.seed_instance(seed)
 
     result = entities.build(rng, faker, riders, drivers, zones_csv)
-
-    typer.echo(
-        f"built {len(result.zones)} zones, {len(result.riders)} riders, "
-        f"{len(result.drivers)} drivers, {len(result.vehicles)} vehicles"
+    trip_list, trip_events = trip_gen.build(rng, trips, result)
+    messy_trips, messy_events = mess.corrupt(
+        rng, trip_list, trip_events, dup_rate, null_rate, late_rate, out_of_range_rate
     )
+
+    summary = (
+        f"built {len(result.zones)} zones, {len(result.riders)} riders, "
+        f"{len(result.drivers)} drivers, {len(result.vehicles)} vehicles, "
+        f"{len(messy_trips)} trips, {len(messy_events)} trip events"
+    )
+
+    if target == "postgres":
+        load.write(result, messy_trips, messy_events)
+        summary += ", loaded into postgres"
+    elif target == "files":
+        files.write(messy_events)
+        summary += f", events written to {files.DEFAULT_EVENTS_PATH}"
+
+    typer.echo(summary)
 
 
 if __name__ == "__main__":
