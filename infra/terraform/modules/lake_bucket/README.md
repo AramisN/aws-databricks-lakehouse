@@ -23,6 +23,7 @@ A hardened S3 bucket, used for every bucket in the lake. Rather than set the sam
 | `component` | Tag for the layer or use, e.g. `raw`, `bronze`, `access-logs` | required |
 | `expire_days` | Days before objects expire. 0 means no expiry | `0` |
 | `logging_target_bucket` | Bucket that receives access logs. Empty means no logging | `""` |
+| `extra_policy_statements` | Extra bucket policy statements merged in, e.g. the S3 logging service principal on the access-logs bucket | `[]` |
 
 ## Outputs
 

@@ -27,6 +27,7 @@ Every resource carries these. The AWS provider adds them through default_tags, s
 
 - `bootstrap`, run once, holds the state bucket, the KMS key, and the OIDC role. State stays local.
 - `foundation`, the network and the lake buckets. State in S3.
+- `streaming`, the Kinesis stream and the Firehose delivery to raw. Its own state, separate from foundation. It can come down on its own and stop the shard billing.
 - Compute and governance parts come later, each in its own phase.
 
 ## Environments

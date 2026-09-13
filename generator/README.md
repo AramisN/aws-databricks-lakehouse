@@ -1,9 +1,12 @@
 # generator
 
-This is Phase 2, a seeded Python program that builds a synthetic ride-hailing
-domain and either loads it into a local Postgres or writes the trip events
-out as NDJSON (ADR-0008, ADR-0009). This is the whole reason Phase 2 doesn't
-need AWS, everything here runs on your machine with Docker and uv.
+A seeded Python program that builds a synthetic ride-hailing domain. Phase 2
+(`entities.py`, `trips.py`, `mess.py`) loads it into a local Postgres or
+writes the trip events out as NDJSON. It needs nothing but Docker and uv, no
+AWS at all (ADR-0008). Phase 3 (`stream.py`) reads that same NDJSON file and
+puts the events on a real Kinesis stream (ADR-0009). That's the one part of
+this folder that does need an AWS account, plus the
+`infra/terraform/streaming` stack applied.
 
 ## What it produces
 
@@ -96,14 +99,15 @@ uv run rides-generate --target postgres   # zones_csv defaults to the path above
 | `--null-rate` | `0.02` | see above |
 | `--late-rate` | `0.05` | see above |
 | `--out-of-range-rate` | `0.01` | see above |
-| `--target` | `postgres` | `postgres` or `files` (see below) |
+| `--target` | `postgres` | `postgres`, `files`, or `kinesis` (see below) |
 | `--zones-csv` | `data/reference/taxi_zone_lookup.csv` | the taxi zone lookup CSV to read |
+| `--partition-key` | `trip_id` | only used by `--target kinesis`, see below |
 
 Every flag has a matching `GENERATOR_*` env var (`GENERATOR_SEED`,
 `GENERATOR_RIDERS`, and so on) read from `.env` via `generator/config.py`,
 if you'd rather set defaults once than pass flags every time.
 
-## The two targets
+## The three targets
 
 - **`--target postgres`** (default). `load.write()` truncates all six
   tables (one statement, so FK order doesn't matter) and `COPY`s the data
@@ -111,8 +115,21 @@ if you'd rather set defaults once than pass flags every time.
   run repeatedly, same seed in, same tables out, never a duplicate-key error.
 - **`--target files`**. `files.write()` writes the trip events only, not
   the actors, since those stay Postgres-only (ADR-0008). It writes to
-  `data/events.ndjson`, one JSON object per line. This is the local stand-in
-  for Kinesis before that exists (ADR-0009).
+  `data/events.ndjson`, one JSON object per line. This is the local input
+  `--target kinesis` reads from.
+- **`--target kinesis`**. `stream.py` reads `data/events.ndjson`, the file
+  `--target files` already wrote, and puts every event on the real Kinesis
+  stream from `infra/terraform/streaming` (ADR-0009), batched through
+  `put_records` with retry on whatever `FailedRecordCount` flags as failed.
+  It never regenerates anything, so run `--target files` first. Needs that
+  Terraform stack applied and your AWS credentials in place, boto3's normal
+  chain, nothing hardcoded. `--partition-key trip_id` (the default) spreads
+  records evenly across shards, since trip_id is close to unique.
+  `--partition-key event_type` is the one that actually forces a hot shard,
+  since pos_update dominates real event volume by a wide margin.
+  `pickup_zone_id` looks like the obvious choice for that, ADR-0009 talks
+  about busy zones swamping a shard, but this generator picks pickup zones
+  uniformly. In practice it spreads about as evenly as trip_id does.
 
 ## Tearing down
 
