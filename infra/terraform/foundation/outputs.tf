@@ -32,3 +32,12 @@ output "access_logs_bucket_name" {
   description = "Name of the S3 access-logs bucket."
   value       = module.access_logs_bucket.bucket_name
 }
+
+# Passed straight through, not looked up. Foundation took this from
+# bootstrap as a variable in the first place (ADR-0007), so re-exposing
+# it here just gives streaming the same value through remote state
+# instead of a second manual -var at plan time.
+output "kms_key_arn" {
+  description = "ARN of the shared KMS key (from bootstrap), passed through so other stacks can read it from this layer's state."
+  value       = var.kms_key_arn
+}
