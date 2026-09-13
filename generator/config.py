@@ -29,6 +29,18 @@ class Settings(BaseSettings):
 
     target: str = "postgres"
 
+    # Only used by --target kinesis. Defaults match what
+    # infra/terraform/streaming actually creates (ADR-0009), so a plain
+    # `rides-generate --target kinesis` works with no flags once that
+    # stack is applied. partition_key_field picks which field on each
+    # event becomes the Kinesis partition key, trip_id is close to
+    # uniform since it's unique per trip. event_type concentrates load
+    # instead, since pos_update dominates real event volume. That's the
+    # one that actually forces a hot shard.
+    stream_name: str = "adl-dev-trip-events"
+    stream_region: str = "eu-central-1"
+    partition_key_field: str = "trip_id"
+
 
 settings = Settings()
 
