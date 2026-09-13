@@ -1,6 +1,13 @@
 # Data contract, ride-hailing domain
 
+Version: 2, see the changelog below for what changed and why.
+
 This is the source of truth for the schema and the PII handling. Every phase reads from it, the generator, the dbt models, the streaming job, the governance rules. It's a living document, not an ADR, so it has no status. It changes as the schema settles, and those changes travel through pull requests like everything else.
+
+## Changelog
+
+- **v2** (2026-09-13): added `pickup_zone_id` to `trip_events`. Phase 3's streaming producer (`generator/stream.py`) can partition Kinesis records by zone for the hot-shard exercise in ADR-0009. That only works if the event itself carries the zone, not just the trip it belongs to.
+- **v1**: initial schema, the six OLTP tables plus the trip_events stream, from Phase 2.
 
 ## How to read the PII column
 
@@ -111,6 +118,7 @@ Handling is what happens to it past the raw layer.
 | lat | double | | location | restricted raw, generalize to zone in analytics |
 | lon | double | | location | restricted raw, generalize to zone in analytics |
 | speed_kmh | double | | none | keep |
+| pickup_zone_id | int | FK zones | location | keep, zone only |
 
 ## Logs, S3 raw
 

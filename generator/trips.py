@@ -83,9 +83,13 @@ class Trip:
 
 
 # One event in a trip's lifecycle, including the pos_update pings.
+# pickup_zone_id is carried on every event, not looked up from the trip.
+# It's one of the fields the streaming producer can partition on
+# (ADR-0009), and the event stream shouldn't need a join back to trips
+# just to know which zone it came from.
 # e.g. event_id='998d48a9-8e8a-573a-8ace-e7c54d54154a' (a uuid value), trip_id=1,
 #      event_type='requested', event_ts='2025-10-24 14:13:44' (a datetime value),
-#      lat=40.6037, lon=-74.2348, speed_kmh=None
+#      lat=40.6037, lon=-74.2348, speed_kmh=None, pickup_zone_id=6
 @dataclass
 class TripEvent:
     event_id: UUID
@@ -95,6 +99,7 @@ class TripEvent:
     lat: float | None
     lon: float | None
     speed_kmh: float | None
+    pickup_zone_id: int
 
 
 # Builds a UUID from the rng instead of calling uuid4().
@@ -137,7 +142,8 @@ def zone_coordinates(
 
 # Builds the pos_update pings for one trip, from start to finish.
 # e.g. build_pos_updates(rng, trip_id=1, start_ts=..., duration_s=2783,
-#                         pickup=(40.6037, -74.2348), dropoff=(40.71, -74.19))
+#                         pickup=(40.6037, -74.2348), dropoff=(40.71, -74.19),
+#                         pickup_zone_id=6)
 #   -> [TripEvent(event_type='pos_update', event_ts=start_ts + 45s, lat=..., lon=..., speed_kmh=...),
 #       TripEvent(event_type='pos_update', event_ts=start_ts + 90s, ...), ...]
 def build_pos_updates(
@@ -147,6 +153,7 @@ def build_pos_updates(
     duration_s: int,
     pickup: tuple[float, float],
     dropoff: tuple[float, float],
+    pickup_zone_id: int,
 ) -> list[TripEvent]:
     """One ping every PING_INTERVAL_SECONDS, moving from pickup to dropoff.
 
@@ -177,6 +184,7 @@ def build_pos_updates(
             lat=lat,
             lon=lon,
             speed_kmh=speed_kmh,
+            pickup_zone_id=pickup_zone_id,
         )
         pings.append(ping)
         elapsed_s += PING_INTERVAL_SECONDS
@@ -216,6 +224,7 @@ def build_cancelled_trip(
                 lat=None,
                 lon=None,
                 speed_kmh=None,
+                pickup_zone_id=pickup_zone_id,
             )
         )
 
@@ -231,6 +240,7 @@ def build_cancelled_trip(
             lat=None,
             lon=None,
             speed_kmh=None,
+            pickup_zone_id=pickup_zone_id,
         )
     )
 
@@ -286,6 +296,7 @@ def build_completed_trip(
             lat=None,
             lon=None,
             speed_kmh=None,
+            pickup_zone_id=pickup_zone_id,
         )
     )
 
@@ -303,10 +314,13 @@ def build_completed_trip(
             lat=pickup[0],
             lon=pickup[1],
             speed_kmh=0.0,
+            pickup_zone_id=pickup_zone_id,
         )
     )
     events.extend(
-        build_pos_updates(rng, trip_id, start_ts, duration_s, pickup, dropoff)
+        build_pos_updates(
+            rng, trip_id, start_ts, duration_s, pickup, dropoff, pickup_zone_id
+        )
     )
     events.append(
         TripEvent(
@@ -317,6 +331,7 @@ def build_completed_trip(
             lat=dropoff[0],
             lon=dropoff[1],
             speed_kmh=None,
+            pickup_zone_id=pickup_zone_id,
         )
     )
 
@@ -375,6 +390,7 @@ def build_trip(
             lat=pickup[0],
             lon=pickup[1],
             speed_kmh=None,
+            pickup_zone_id=pickup_zone_id,
         )
     ]
 

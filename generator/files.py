@@ -18,7 +18,7 @@ DEFAULT_EVENTS_PATH = Path("data/events.ndjson")
 # first.
 # e.g. _event_to_json_line(event) -> '{"event_id": "998d48a9-...", "trip_id": 1,
 #      "event_type": "requested", "event_ts": "2025-10-24T14:13:44+00:00",
-#      "lat": 40.6037, "lon": -74.2348, "speed_kmh": null}'
+#      "lat": 40.6037, "lon": -74.2348, "speed_kmh": null, "pickup_zone_id": 6}'
 def _event_to_json_line(event: TripEvent) -> str:
     row = asdict(event)
     row["event_id"] = str(event.event_id)

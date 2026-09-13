@@ -79,13 +79,15 @@ CREATE INDEX idx_trips_pickup_zone_id ON trips (pickup_zone_id);
 CREATE INDEX idx_trips_dropoff_zone_id ON trips (dropoff_zone_id);
 
 CREATE TABLE trip_events (
-    event_id   uuid        PRIMARY KEY,
-    trip_id    bigint      NOT NULL REFERENCES trips (trip_id),
-    event_type text        NOT NULL,
-    event_ts   timestamptz NOT NULL,
-    lat        double precision,
-    lon        double precision,
-    speed_kmh  double precision
+    event_id       uuid        PRIMARY KEY,
+    trip_id        bigint      NOT NULL REFERENCES trips (trip_id),
+    event_type     text        NOT NULL,
+    event_ts       timestamptz NOT NULL,
+    lat            double precision,
+    lon            double precision,
+    speed_kmh      double precision,
+    pickup_zone_id int         NOT NULL REFERENCES zones (zone_id)
 );
 
 CREATE INDEX idx_trip_events_trip_id ON trip_events (trip_id);
+CREATE INDEX idx_trip_events_pickup_zone_id ON trip_events (pickup_zone_id);
