@@ -16,11 +16,11 @@ A VPC across two AZs with private subnets only. No NAT gateway, no internet gate
 
 | Name | Description | Default |
 |---|---|---|
-| `name_prefix` | Prefix for every resource name, e.g. `adl-dev` | — |
+| `name_prefix` | Prefix for every resource name, e.g. `adl-dev` | required |
 | `vpc_cidr` | CIDR block for the VPC | `10.0.0.0/16` |
 | `az_count` | Number of AZs to spread private subnets across | `2` |
-| `region` | AWS region | — |
-| `kms_key_arn` | KMS key that encrypts the flow logs log group | — |
+| `region` | AWS region | required |
+| `kms_key_arn` | KMS key that encrypts the flow logs log group | required |
 
 ## Outputs
 

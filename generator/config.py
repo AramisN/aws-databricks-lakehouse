@@ -7,7 +7,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # e.g. GENERATOR_RIDERS=50 GENERATOR_SEED=7 uv run python -m generator.cli
 #   -> Settings(seed=7, riders=50, drivers=200, trips=10_000, ...) instead of the defaults below
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="GENERATOR_", env_file=".env")
+    # extra="ignore": .env is shared with DBSettings below, so this class
+    # has to ignore the POSTGRES_* keys in it rather than reject them -
+    # pydantic-settings reads the whole .env file regardless of env_prefix,
+    # and its default is to error on any key that isn't one of its own.
+    model_config = SettingsConfigDict(
+        env_prefix="GENERATOR_", env_file=".env", extra="ignore"
+    )
 
     seed: int = 42
 
@@ -25,3 +31,28 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+# The Postgres connection settings. Kept separate from Settings above and
+# unprefixed, on purpose: POSTGRES_USER/PASSWORD/DB are the same env vars
+# compose.yaml passes to the db service itself, so the generator and the
+# container it's talking to have to agree on the same names, not a
+# GENERATOR_-prefixed duplicate of them.
+# e.g. with POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres
+#      POSTGRES_DB=rideshare set (from .env) -> DBSettings(host='localhost',
+#      port=5432, user='postgres', password='postgres', db='rideshare')
+class DBSettings(BaseSettings):
+    # extra="ignore" for the same reason as Settings above: this file is
+    # shared, so GENERATOR_* keys in it have to be ignored here too.
+    model_config = SettingsConfigDict(
+        env_prefix="POSTGRES_", env_file=".env", extra="ignore"
+    )
+
+    host: str = "localhost"
+    port: int = 5432
+    user: str = "postgres"
+    password: str = "postgres"
+    db: str = "rideshare"
+
+
+db_settings = DBSettings()

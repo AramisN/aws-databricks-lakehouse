@@ -1,6 +1,6 @@
 # lake_bucket
 
-A hardened S3 bucket, used for every bucket in the lake. Rather than set the same safe options on each bucket by hand, they all come from this one module, so the setup is written once.
+A hardened S3 bucket, used for every bucket in the lake. Rather than set the same safe options on each bucket by hand, they all come from this one module. That way the setup gets written once.
 
 ## What it creates
 
@@ -18,9 +18,9 @@ A hardened S3 bucket, used for every bucket in the lake. Rather than set the sam
 
 | Name | Description | Default |
 |---|---|---|
-| `bucket_name` | Full bucket name | — |
-| `kms_key_arn` | KMS key used to encrypt the bucket | — |
-| `component` | Tag for the layer or use, e.g. `raw`, `bronze`, `access-logs` | — |
+| `bucket_name` | Full bucket name | required |
+| `kms_key_arn` | KMS key used to encrypt the bucket | required |
+| `component` | Tag for the layer or use, e.g. `raw`, `bronze`, `access-logs` | required |
 | `expire_days` | Days before objects expire. 0 means no expiry | `0` |
 | `logging_target_bucket` | Bucket that receives access logs. Empty means no logging | `""` |
 

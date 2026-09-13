@@ -46,4 +46,4 @@ stateDiagram-v2
 
 ## Rules
 
-A Proposed ADR gets edited freely while it's under review. Once it's Accepted the decision is frozen. If it changes later the ADR is not rewritten. A new ADR is written instead, the old one is marked Superseded, and the two are linked. That trail is deliberate, it shows how the thinking moved across the project rather than hiding the dead ends.
+A Proposed ADR gets edited freely while it's under review. Once it's Accepted the decision is frozen. If it changes later the ADR is not rewritten. A new ADR is written instead. The old one is marked Superseded, and the two are linked. That trail is deliberate, it shows how the thinking moved across the project rather than hiding the dead ends.

@@ -112,6 +112,19 @@ def load_zones(zones_csv: Path) -> list[Zone]:
     return zones
 
 
+# A consistent, made-up US phone number - not faker.phone_number(), which
+# mixes in extensions, 001-/+1- prefixes, and other formats real personal
+# cell numbers don't have. Area code and exchange both start 2-9, same as
+# a real NANP number would, since that's the one rule worth bothering with
+# here.
+# e.g. random_phone_number(rng) -> '+1-718-555-0142'
+def random_phone_number(rng: random.Random) -> str:
+    area_code = rng.randint(2, 9) * 100 + rng.randint(0, 99)
+    exchange_code = rng.randint(2, 9) * 100 + rng.randint(0, 99)
+    line_number = rng.randint(0, 9999)
+    return f"+1-{area_code}-{exchange_code}-{line_number:04d}"
+
+
 # Picks a random timestamp somewhere in the lookback_days before reference.
 # e.g. random_past_timestamp(rng, REFERENCE_DATE, 730)
 #   -> a datetime value like 2025-12-12 13:45:57, somewhere in the last 2 years
@@ -137,7 +150,7 @@ def build_riders(
             first_name=faker.first_name(),
             last_name=faker.last_name(),
             email=faker.email(),
-            phone=faker.phone_number(),
+            phone=random_phone_number(rng),
             home_zone_id=rng.choice(zone_ids),
             signup_ts=random_past_timestamp(
                 rng, REFERENCE_DATE, RIDER_SIGNUP_LOOKBACK_DAYS
@@ -162,7 +175,7 @@ def build_drivers(
             first_name=faker.first_name(),
             last_name=faker.last_name(),
             email=faker.email(),
-            phone=faker.phone_number(),
+            phone=random_phone_number(rng),
             # not a real license format, just something that looks plausible
             license_number=faker.bothify(text="??######").upper(),
             home_zone_id=rng.choice(zone_ids),
