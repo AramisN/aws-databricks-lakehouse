@@ -54,6 +54,7 @@ def _make_events(count: int) -> list[TripEvent]:
             lat=40.7,
             lon=-74.0,
             speed_kmh=25.0,
+            pickup_zone_id=1,
         )
         events.append(event)
     return events

@@ -8,6 +8,7 @@ It's built in phases, and each one stands on its own. See below if you only want
 
 - **Phase 1, AWS infrastructure.** Terraform for the VPC, the S3 data lake, IAM and OIDC, and the CI/CD around it. Needs an AWS account. Covered in [infra](infra/README.md) and [docs/adr](docs/adr/README.md).
 - **Phase 2, the data generator.** A seeded Python program that builds a synthetic ride-hailing dataset and either loads it into Postgres or writes it out as NDJSON. It runs entirely on its own with Docker and [uv](https://docs.astral.sh/uv/) and nothing else, no AWS account needed. Full detail in [generator/README.md](generator/README.md).
+- **Phase 3, streaming.** The same generator's `stream.py` reads the NDJSON file Phase 2 wrote and puts the events on a real Kinesis stream, batched with partial-failure retry. Unlike Phase 2, this one does need an AWS account and the `infra/terraform/streaming` stack applied (its own state, teardown-independent of everything else, see [infra](infra/README.md)).
 
 If you're here for Phase 2 only, this is the whole path, start to finish:
 
@@ -36,6 +37,7 @@ the choices below. For how to bring the infrastructure up and down, see [infra](
 | Unity Catalog governance  |    ✅    |  ❌   | Catalog/schema structure drafted                     |
 | IAM roles & cross-account trust | ✅ |  ✅   | Bootstrap OIDC role + state-access policy provisioned; cross-account not in scope yet (single account, ADR-0003) |
 | CI/CD for infra (Terraform) | ✅   |  ✅   | GitHub Actions: fmt, validate, checkov, plan on every PR via OIDC. Apply stays a deliberate local step (ADR-0005) |
+| Streaming (Kinesis + Firehose) | ✅ |  ❌   | `infra/terraform/streaming` written and validated, not yet applied; the producer (`generator/stream.py`) is done and unit-tested (ADR-0009) |
 | dbt models                |    ❌    |  ❌   | Not yet started                                       |
 | Monitoring & cost alerting |   ❌    |  ❌   | Not yet started                                       |
 

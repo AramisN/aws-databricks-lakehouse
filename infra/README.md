@@ -4,10 +4,11 @@ How to bring this environment's Terraform up and down.
 
 ## Layers
 
-Two layers, applied in order.
+Two layers, applied in order, plus one optional third that sits beside them.
 
 1. **`terraform/bootstrap`** runs once, by hand, on your machine. It makes the state bucket, its KMS key, and the GitHub OIDC role that CI logs in as. Its own state stays local and out of git (see ADR-0007). Bootstrap can't keep its state in the bucket, because bootstrap is the thing that makes that bucket in the first place.
 2. **`terraform/foundation`** is the VPC and the five lake buckets (raw, bronze, silver, gold, access-logs). Its state lives in the S3 backend that bootstrap made. Shared pieces live in `terraform/modules/`, each with its own README.
+3. **`terraform/streaming`** is the Kinesis stream, the Firehose delivery stream that lands it in the raw bucket, and the two IAM roles that scope who can write to the stream and who can read it (ADR-0009). It's its own stack, not part of foundation, on purpose. `terraform destroy` here kills the stream and stops the shard billing without touching the VPC or any bucket. It reads the raw bucket's name and the shared KMS key ARN out of foundation's state through a `terraform_remote_state` data source, rather than taking either as a variable.
 
 ## Bringing a layer up
 
@@ -15,10 +16,10 @@ Two layers, applied in order.
 cd infra/terraform/<layer>
 terraform init
 terraform plan   # foundation needs: -var "kms_key_arn=<bootstrap's kms_key_arn output>"
-terraform apply  # same -var as above, for foundation
+terraform apply  # same -var as above, foundation only; streaming needs no -var at all
 ```
 
-Bootstrap's outputs (`terraform output`) feed foundation's `kms_key_arn` variable. Foundation is tied to bootstrap only through that one value, nothing more (ADR-0007).
+Bootstrap's outputs (`terraform output`) feed foundation's `kms_key_arn` variable. Streaming doesn't take that variable at all, it reads foundation's state instead. That's the same lightweight coupling foundation itself has with bootstrap (ADR-0007).
 
 ## Bringing a layer down
 
@@ -27,7 +28,7 @@ cd infra/terraform/<layer>
 terraform destroy
 ```
 
-Tear `foundation` down before `bootstrap`, the reverse of the order you brought them up. Bootstrap holds the state bucket that foundation's own state lives in, so it has to go last.
+Tear `foundation` down before `bootstrap`, the reverse of the order you brought them up. Bootstrap holds the state bucket that foundation's own state lives in, so it has to go last. `streaming` is the exception, tear it down whenever, independent of the other two. That independence is the entire reason it's a separate stack.
 
 ## CI
 

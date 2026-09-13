@@ -149,8 +149,8 @@ def copy_trips(cur: psycopg.Cursor, trips: list[Trip]) -> None:
 # Copies the trip event rows in, pos_update pings included.
 def copy_trip_events(cur: psycopg.Cursor, events: list[TripEvent]) -> None:
     with cur.copy(
-        "COPY trip_events (event_id, trip_id, event_type, event_ts, lat, lon, speed_kmh) "
-        "FROM STDIN"
+        "COPY trip_events (event_id, trip_id, event_type, event_ts, lat, lon, speed_kmh, "
+        "pickup_zone_id) FROM STDIN"
     ) as copy:
         for event in events:
             copy.write_row(
@@ -162,6 +162,7 @@ def copy_trip_events(cur: psycopg.Cursor, events: list[TripEvent]) -> None:
                     event.lat,
                     event.lon,
                     event.speed_kmh,
+                    event.pickup_zone_id,
                 )
             )
 
