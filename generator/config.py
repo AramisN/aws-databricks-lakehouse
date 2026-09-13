@@ -3,6 +3,9 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+# All the generator's settings, overridable via GENERATOR_ env vars or a .env file.
+# e.g. GENERATOR_RIDERS=50 GENERATOR_SEED=7 uv run python -m generator.cli
+#   -> Settings(seed=7, riders=50, drivers=200, trips=10_000, ...) instead of the defaults below
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="GENERATOR_", env_file=".env")
 
