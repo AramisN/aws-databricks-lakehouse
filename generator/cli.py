@@ -5,11 +5,16 @@ import typer
 from faker import Faker
 
 from generator import entities
+from generator import trips as trip_gen
 from generator.config import settings
 
 app = typer.Typer()
 
 
+# The "generate" CLI command: builds entities and trips, then prints a summary.
+# e.g. uv run python -m generator.cli --seed 42 --riders 5 --drivers 3 --trips 4 \
+#        --zones-csv generator/tests/sample/zones.csv
+#   -> built 8 zones, 5 riders, 3 drivers, 3 vehicles, 4 trips, 190 trip events
 @app.command()
 def generate(
     seed: int = typer.Option(settings.seed, help="Seed for the rng and Faker."),
@@ -43,10 +48,12 @@ def generate(
     faker.seed_instance(seed)
 
     result = entities.build(rng, faker, riders, drivers, zones_csv)
+    trip_list, trip_events = trip_gen.build(rng, trips, result)
 
     typer.echo(
         f"built {len(result.zones)} zones, {len(result.riders)} riders, "
-        f"{len(result.drivers)} drivers, {len(result.vehicles)} vehicles"
+        f"{len(result.drivers)} drivers, {len(result.vehicles)} vehicles, "
+        f"{len(trip_list)} trips, {len(trip_events)} trip events"
     )
 
 
