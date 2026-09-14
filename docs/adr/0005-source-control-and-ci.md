@@ -1,6 +1,6 @@
 # ADR-0005: Source control and CI
 
-Status: Proposed
+Status: Accepted
 Date: 2026-09-01
 
 ## What I'm deciding

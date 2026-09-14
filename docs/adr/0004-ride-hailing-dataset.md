@@ -1,6 +1,6 @@
 # ADR-0004: Ride-hailing as the dataset domain
 
-Status: Proposed
+Status: Accepted
 Date: 2026-09-01
 
 ## What I'm deciding

@@ -1,6 +1,6 @@
 # ADR-0008: The synthetic data generator and its local source
 
-Status: Proposed
+Status: Accepted
 Date: 2026-09-08
 
 ## What I'm deciding
