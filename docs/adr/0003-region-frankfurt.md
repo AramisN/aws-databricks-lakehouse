@@ -1,6 +1,6 @@
 # ADR-0003: Frankfurt (eu-central-1) as the region
 
-Status: Proposed
+Status: Accepted
 Date: 2026-09-01
 
 ## What I'm deciding

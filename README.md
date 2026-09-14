@@ -37,7 +37,7 @@ the choices below. For how to bring the infrastructure up and down, see [infra](
 | Unity Catalog governance  |    ✅    |  ❌   | Catalog/schema structure drafted                     |
 | IAM roles & cross-account trust | ✅ |  ✅   | Bootstrap OIDC role + state-access policy provisioned; cross-account not in scope yet (single account, ADR-0003) |
 | CI/CD for infra (Terraform) | ✅   |  ✅   | GitHub Actions: fmt, validate, checkov, plan on every PR via OIDC. Apply stays a deliberate local step (ADR-0005) |
-| Streaming (Kinesis + Firehose) | ✅ |  ❌   | `infra/terraform/streaming` written and validated, not yet applied; the producer (`generator/stream.py`) is done and unit-tested (ADR-0009) |
+| Streaming (Kinesis + Firehose) | ✅ |  ✅   | Applied for real and load tested to actual throughput-exceeded errors, then torn down per teardown-first, see [docs/streaming-load-test.md](docs/streaming-load-test.md) (ADR-0009) |
 | dbt models                |    ❌    |  ❌   | Not yet started                                       |
 | Monitoring & cost alerting |   ❌    |  ❌   | Not yet started                                       |
 

@@ -10,16 +10,16 @@ its consequences.
 |-----|-------|--------|
 | [0001](0001-aws-and-databricks-lakehouse.md) | AWS and Databricks lakehouse | Proposed |
 | [0002](0002-databricks-over-emr.md) | choosing Databricks over EMR | Proposed |
-| [0003](0003-region-frankfurt.md) | Frankfurt (eu-central-1) as the region | Proposed |
-| [0004](0004-ride-hailing-dataset.md) | Ride-hailing as the dataset domain | Proposed |
-| [0005](0005-source-control-and-ci.md) | Source control and CI | Proposed |
+| [0003](0003-region-frankfurt.md) | Frankfurt (eu-central-1) as the region | Accepted |
+| [0004](0004-ride-hailing-dataset.md) | Ride-hailing as the dataset domain | Accepted |
+| [0005](0005-source-control-and-ci.md) | Source control and CI | Accepted |
 | [0006](0006-pii-gdpr-governance-lineage.md) | PII, GDPR, governance, and lineage | Proposed |
-| [0007](0007-terraform-structure-and-state.md) | Terraform structure and state | Proposed |
-| [0008](0008-synthetic-data-generator-and-local-source.md) | The synthetic data generator and its local source | Proposed |
-| [0009](0009-streaming-events-through-kinesis.md) | Streaming the trip events through Kinesis | Proposed |
+| [0007](0007-terraform-structure-and-state.md) | Terraform structure and state | Accepted |
+| [0008](0008-synthetic-data-generator-and-local-source.md) | The synthetic data generator and its local source | Accepted |
+| [0009](0009-streaming-events-through-kinesis.md) | Streaming the trip events through Kinesis | Accepted |
 
 ## ADR status model
-Status tells a reader where a decision stands. It says nothing about whether the thing is built yet. Build state lives in the README status table and is tracked separately.
+Status tells a reader whether a decision is still open or settled. The fine-grained, per-component build details live in the README status table, this index only tracks the decision itself.
 
 | Status | Meaning |
 |---|---|
