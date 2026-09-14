@@ -1,7 +1,7 @@
 # ADR-0001: AWS and Databricks lakehouse
 
-**Status:** Proposed, waiting on my sign-off
-**Date:** 2026-09-01
+Status: Accepted
+Date: 2026-09-01
 
 ## What I'm deciding
 
