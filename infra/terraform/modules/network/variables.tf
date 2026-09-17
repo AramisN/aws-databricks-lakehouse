@@ -20,6 +20,11 @@ variable "region" {
   type        = string
 }
 
+variable "az_ids" {
+  description = "AWS Availability Zone IDs to place private subnets in, exactly az_count of them. Pinned by the caller so a new AZ AWS adds to the region later never silently joins the pool (CKV_AWS_394)."
+  type        = list(string)
+}
+
 variable "kms_key_arn" {
   description = "ARN of the KMS key used to encrypt the VPC flow logs CloudWatch log group."
   type        = string

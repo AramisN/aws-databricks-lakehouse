@@ -8,6 +8,7 @@ module "network" {
 
   name_prefix = "adl-dev"
   region      = "eu-central-1"
+  az_ids      = ["euc1-az2", "euc1-az3"]
   kms_key_arn = var.kms_key_arn
 }
 

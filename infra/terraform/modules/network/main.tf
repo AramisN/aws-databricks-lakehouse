@@ -1,11 +1,18 @@
 # Availability zones available in the target region, used to spread
-# private subnets across az_count zones.
+# private subnets across az_count zones. Filtered to var.az_ids so the
+# result set is exactly those zones, never more, even after AWS adds a
+# new AZ to the region (CKV_AWS_394).
 data "aws_availability_zones" "available" {
   state = "available"
 
   filter {
     name   = "region-name"
     values = [var.region]
+  }
+
+  filter {
+    name   = "zone-id"
+    values = var.az_ids
   }
 }
 
