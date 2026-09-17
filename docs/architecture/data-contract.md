@@ -1,11 +1,12 @@
 # Data contract, ride-hailing domain
 
-Version: 2, see the changelog below for what changed and why.
+Version: 3, see the changelog below for what changed and why.
 
 This is the source of truth for the schema and the PII handling. Every phase reads from it, the generator, the dbt models, the streaming job, the governance rules. It's a living document, not an ADR, so it has no status. It changes as the schema settles, and those changes travel through pull requests like everything else.
 
 ## Changelog
 
+- **v3** (2026-09-17): riders' and drivers' names now drop before they reach raw. Email, phone, licence number, and vehicles' plate land hashed instead of restricted-but-readable. Both are per ADR-0012, specific to what DMS lands on the CDC path. The restricted-in-raw model still applies everywhere else.
 - **v2** (2026-09-13): added `pickup_zone_id` to `trip_events`. Phase 3's streaming producer (`generator/stream.py`) can partition Kinesis records by zone for the hot-shard exercise in ADR-0009. That only works if the event itself carries the zone, not just the trip it belongs to.
 - **v1**: initial schema, the six OLTP tables plus the trip_events stream, from Phase 2.
 
@@ -35,10 +36,10 @@ Handling is what happens to it past the raw layer.
 | Field | Type | Key | PII | Handling |
 |---|---|---|---|---|
 | rider_id | bigint | PK | quasi | keep |
-| first_name | text | | direct | mask |
-| last_name | text | | direct | mask |
-| email | text | | direct | restricted |
-| phone | text | | direct | restricted |
+| first_name | text | | direct | drop, excluded before it lands, never reaches raw (ADR-0012) |
+| last_name | text | | direct | drop, excluded before it lands, never reaches raw (ADR-0012) |
+| email | text | | direct | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
+| phone | text | | direct | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
 | date_of_birth | date | | quasi | generalize to age band |
 | home_zone_id | int | FK zones | location | keep, zone only |
 | home_address | text | | direct | drop, zone kept instead |
@@ -50,11 +51,11 @@ Handling is what happens to it past the raw layer.
 | Field | Type | Key | PII | Handling |
 |---|---|---|---|---|
 | driver_id | bigint | PK | quasi | keep |
-| first_name | text | | direct | mask |
-| last_name | text | | direct | mask |
-| email | text | | direct | restricted |
-| phone | text | | direct | restricted |
-| license_number | text | | direct | restricted |
+| first_name | text | | direct | drop, excluded before it lands, never reaches raw (ADR-0012) |
+| last_name | text | | direct | drop, excluded before it lands, never reaches raw (ADR-0012) |
+| email | text | | direct | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
+| phone | text | | direct | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
+| license_number | text | | direct | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
 | vehicle_id | bigint | FK vehicles | none | keep |
 | rating | numeric | | none | keep |
 | onboarded_ts | timestamp | | none | keep |
@@ -65,7 +66,7 @@ Handling is what happens to it past the raw layer.
 | Field | Type | Key | PII | Handling |
 |---|---|---|---|---|
 | vehicle_id | bigint | PK | none | keep |
-| plate | text | | quasi | mask |
+| plate | text | | quasi | hash, unkeyed, DMS's built-in SHA-256, not reversible-proof (ADR-0012) |
 | make | text | | none | keep |
 | model | text | | none | keep |
 | year | int | | none | keep |
@@ -167,7 +168,7 @@ The contract is versioned, and changes travel through pull requests like the res
 
 ## Right to erasure
 
-A deletion request hard deletes the person's rows, then VACUUM clears the history past the retention window so the old versions are actually gone. Direct identifiers only ever lived in the restricted raw zone, so there's little to chase downstream. A reconciliation check confirms the person is absent across raw, bronze, silver, and gold before the request is closed.
+A deletion request hard deletes the person's rows, then VACUUM clears the history past the retention window so the old versions are actually gone. Direct identifiers either never reach raw at all or land already hashed, so there's little to chase downstream. A reconciliation check confirms the person is absent across raw, bronze, silver, and gold before the request is closed.
 
 ## Retention
 

@@ -2,6 +2,7 @@
 
 Status: Proposed
 Date: 2026-09-01
+Partially superseded by: ADR-0012, for the raw zone on the CDC path
 
 ## What I'm deciding
 
