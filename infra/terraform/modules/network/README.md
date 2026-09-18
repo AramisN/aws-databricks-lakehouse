@@ -20,6 +20,7 @@ A VPC across two AZs with private subnets only. No NAT gateway, no internet gate
 | `vpc_cidr` | CIDR block for the VPC | `10.0.0.0/16` |
 | `az_count` | Number of AZs to spread private subnets across | `2` |
 | `region` | AWS region | required |
+| `az_ids` | AZ IDs to place subnets in, exactly `az_count` of them (CKV_AWS_394) | required |
 | `kms_key_arn` | KMS key that encrypts the flow logs log group | required |
 
 ## Outputs
