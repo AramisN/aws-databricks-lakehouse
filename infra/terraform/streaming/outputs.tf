@@ -10,7 +10,7 @@ output "stream_arn" {
 
 output "region" {
   description = "AWS region the stream runs in, so the producer knows where to send."
-  value       = data.aws_region.current.name
+  value       = data.aws_region.current.region
 }
 
 output "producer_role_arn" {
