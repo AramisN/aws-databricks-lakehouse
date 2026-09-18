@@ -10,7 +10,7 @@ Where the code lives and what has to pass before it merges, and how it reaches A
 
 ## The call
 
-GitHub for the repo, GitHub Actions for CI. Work happens on short-lived branches and merges to a protected main through a pull request. CI checks and plans on every pull request, but it never applies to AWS. Apply stays a deliberate local step, because the infrastructure is ephemeral and only comes up for a session.
+GitHub for the repo, GitHub Actions for CI. Work happens on short-lived branches and merges to a protected master through a pull request. CI checks and plans on every pull request, but it never applies to AWS. Apply stays a deliberate local step, because the infrastructure is ephemeral and only comes up for a session.
 
 ## Why GitHub Actions over CodePipeline
 

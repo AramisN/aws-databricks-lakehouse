@@ -14,12 +14,15 @@ Two layers, applied in order, plus one optional third that sits beside them.
 
 ```bash
 cd infra/terraform/<layer>
-terraform init
+terraform init -backend-config="bucket=<bootstrap's state_bucket_name output>" \
+               -backend-config="kms_key_id=<bootstrap's kms_key_arn output>"
 terraform plan   # foundation needs: -var "kms_key_arn=<bootstrap's kms_key_arn output>"
-terraform apply  # same -var as above, foundation only; streaming needs no -var at all
+                 # streaming needs:  -var "tfstate_bucket_name=<bootstrap's state_bucket_name output>"
+                 #                   -var "tfstate_kms_key_arn=<bootstrap's kms_key_arn output>"
+terraform apply  # same -var flags as the plan above
 ```
 
-Bootstrap's outputs (`terraform output`) feed foundation's `kms_key_arn` variable. Streaming doesn't take that variable at all, it reads foundation's state instead. That's the same lightweight coupling foundation itself has with bootstrap (ADR-0007).
+`bucket` and `kms_key_id` aren't in the backend blocks, both would put the account id in a public repo. `terraform init` takes them as flags instead. Bootstrap's outputs (`terraform output`) feed all of these. Streaming doesn't take `kms_key_arn`, it reads foundation's state for that; it does need the two `tfstate_*` variables to reach that state in the first place, since foundation's own bucket and key aren't in `streaming/main.tf` either. Same lightweight coupling foundation itself has with bootstrap (ADR-0007).
 
 ## Bringing a layer down
 
@@ -35,6 +38,8 @@ Tear `foundation` down before `bootstrap`, the reverse of the order you brought 
 `.github/workflows/terraform.yml` runs `fmt`, `init`, `validate`, a checkov scan (`.checkov.yaml` and `.checkov.baseline` at the repo root), and `plan` on every pull request against `foundation`. It logs in through the bootstrap OIDC role, so there are no long lived AWS keys.
 
 `.github/workflows/terraform-apply.yml` applies `foundation` or `streaming`, triggered by hand from the Actions tab, never automatically. It plans, posts the plan, then waits for approval on the `aws` GitHub Environment before applying that exact plan. Nothing applies unless someone starts the workflow and approves it (ADR-0013).
+
+The role ARN, the KMS key, the environment's approval rule, and everything else that lives in GitHub settings rather than a file are in [docs/ci.md](../docs/ci.md).
 
 ## Naming and tags
 
