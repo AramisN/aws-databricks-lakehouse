@@ -61,3 +61,9 @@ jobs:
 
       - name: Run pre-commit
         run: uvx pre-commit run --all-files --show-diff-on-failure
+        env:
+          # terraform_fmt/terraform_validate need Terraform installed, and
+          # the terraform workflow already covers both, with real backend
+          # access this job doesn't have. No point installing it twice for
+          # a shallower check.
+          SKIP: terraform_fmt,terraform_validate
