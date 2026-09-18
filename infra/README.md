@@ -36,6 +36,8 @@ Tear `foundation` down before `bootstrap`, the reverse of the order you brought 
 
 `.github/workflows/terraform-apply.yml` applies `foundation` or `streaming`, triggered by hand from the Actions tab, never automatically. It plans, posts the plan, then waits for approval on the `aws` GitHub Environment before applying that exact plan. Nothing applies unless someone starts the workflow and approves it (ADR-0013).
 
+The role ARN, the KMS key, the environment's approval rule, and everything else that lives in GitHub settings rather than a file are in [docs/ci.md](../docs/ci.md).
+
 ## Naming and tags
 
 See [docs/conventions.md](../docs/conventions.md).
