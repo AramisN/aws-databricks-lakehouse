@@ -12,7 +12,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "boto3-stubs[kinesis]>=1.43.91",
+    "boto3-stubs[kinesis]>=1.43.94",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
