@@ -46,10 +46,20 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform init
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TFSTATE_BUCKET }}" \
+            -backend-config="kms_key_id=${{ vars.KMS_KEY_ARN }}"
 
       - name: Terraform plan
-        run: terraform plan -out=tfplan -var "kms_key_arn=${{ vars.KMS_KEY_ARN }}"
+        run: |
+          if [ "${{ inputs.stack }}" = "foundation" ]; then
+            terraform plan -out=tfplan -var "kms_key_arn=${{ vars.KMS_KEY_ARN }}"
+          else
+            terraform plan -out=tfplan \
+              -var "tfstate_bucket_name=${{ secrets.TFSTATE_BUCKET }}" \
+              -var "tfstate_kms_key_arn=${{ vars.KMS_KEY_ARN }}"
+          fi
 
       - name: Show plan
         run: |
@@ -91,7 +101,10 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform init
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TFSTATE_BUCKET }}" \
+            -backend-config="kms_key_id=${{ vars.KMS_KEY_ARN }}"
 
       - name: Download plan
         uses: actions/download-artifact@v8

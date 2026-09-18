@@ -11,10 +11,10 @@ data "aws_region" "current" {}
 data "terraform_remote_state" "foundation" {
   backend = "s3"
   config = {
-    bucket     = "adl-dev-tfstate-537408064652"
+    bucket     = var.tfstate_bucket_name
     key        = "foundation/terraform.tfstate"
     region     = "eu-central-1"
-    kms_key_id = "arn:aws:kms:eu-central-1:537408064652:key/3f1c52b1-f091-4ead-b64d-6b93551ab9e8"
+    kms_key_id = var.tfstate_kms_key_arn
   }
 }
 
