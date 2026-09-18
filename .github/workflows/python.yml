@@ -3,6 +3,8 @@ name: Python
 on:
   pull_request:
     branches: [master]
+  push:
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -37,4 +39,31 @@ jobs:
         run: uv run mypy generator
 
       - name: Pytest
-        run: uv run pytest generator/tests -v
+        run: uv run pytest generator/tests -v --cov --cov-report=xml --cov-report=term
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 7
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+
+      - name: Run pre-commit
+        run: uvx pre-commit run --all-files --show-diff-on-failure
+        env:
+          # terraform_fmt/terraform_validate need Terraform installed, and
+          # the terraform workflow already covers both, with real backend
+          # access this job doesn't have. No point installing it twice for
+          # a shallower check.
+          SKIP: terraform_fmt,terraform_validate
