@@ -48,7 +48,7 @@ jobs:
       - name: Terraform init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.TFSTATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.TFSTATE_BUCKET }}" \
             -backend-config="kms_key_id=${{ vars.KMS_KEY_ARN }}"
 
       - name: Terraform plan
@@ -57,7 +57,7 @@ jobs:
             terraform plan -out=tfplan -var "kms_key_arn=${{ vars.KMS_KEY_ARN }}"
           else
             terraform plan -out=tfplan \
-              -var "tfstate_bucket_name=${{ secrets.TFSTATE_BUCKET }}" \
+              -var "tfstate_bucket_name=${{ vars.TFSTATE_BUCKET }}" \
               -var "tfstate_kms_key_arn=${{ vars.KMS_KEY_ARN }}"
           fi
 
@@ -103,7 +103,7 @@ jobs:
       - name: Terraform init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.TFSTATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.TFSTATE_BUCKET }}" \
             -backend-config="kms_key_id=${{ vars.KMS_KEY_ARN }}"
 
       - name: Download plan

@@ -51,7 +51,7 @@ jobs:
       - name: Terraform init
         run: |
           terraform init \
-            -backend-config="bucket=${{ secrets.TFSTATE_BUCKET }}" \
+            -backend-config="bucket=${{ vars.TFSTATE_BUCKET }}" \
             -backend-config="kms_key_id=${{ vars.KMS_KEY_ARN }}"
 
       - name: Terraform validate
