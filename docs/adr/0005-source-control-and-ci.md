@@ -2,6 +2,7 @@
 
 Status: Accepted
 Date: 2026-09-01
+Partially superseded by: ADR-0013, on CI applying to AWS
 
 ## What I'm deciding
 
@@ -32,7 +33,7 @@ Applying from CI would mean either a broad standing role in AWS or a pipeline th
 
 ## Branching and merges
 
-Main is protected and can't be pushed to directly. Work lands through pull requests off short-lived branches, squash-merged so the history stays one clean commit per change. Even solo, the pull request is worth it. It runs the gates, and it makes the history read like real work.
+master is protected and can't be pushed to directly. Work lands through pull requests off short-lived branches, squash-merged so the history stays one clean commit per change. Even solo, the pull request is worth it. It runs the gates, and it makes the history read like real work.
 
 ## The repo is private until it's ready
 

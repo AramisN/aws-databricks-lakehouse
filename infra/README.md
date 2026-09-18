@@ -32,7 +32,9 @@ Tear `foundation` down before `bootstrap`, the reverse of the order you brought 
 
 ## CI
 
-`.github/workflows/terraform.yml` runs `fmt`, `init`, `validate`, a checkov scan (`.checkov.yaml` and `.checkov.baseline` at the repo root), and `plan` on every pull request against `foundation`. It logs in through the bootstrap OIDC role, so there are no long lived AWS keys. CI never applies, that stays a deliberate local step (ADR-0005).
+`.github/workflows/terraform.yml` runs `fmt`, `init`, `validate`, a checkov scan (`.checkov.yaml` and `.checkov.baseline` at the repo root), and `plan` on every pull request against `foundation`. It logs in through the bootstrap OIDC role, so there are no long lived AWS keys.
+
+`.github/workflows/terraform-apply.yml` applies `foundation` or `streaming`, triggered by hand from the Actions tab, never automatically. It plans, posts the plan, then waits for approval on the `aws` GitHub Environment before applying that exact plan. Nothing applies unless someone starts the workflow and approves it (ADR-0013).
 
 ## Naming and tags
 
