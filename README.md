@@ -43,4 +43,4 @@ the choices below. For how to bring the infrastructure up and down, see [infra](
 
 ## Cost note
 
-Bootstrap and foundation are both applied. That is a VPC with no NAT gateway, 5 S3 buckets, a KMS key, and CloudWatch flow logs. At this scale the buckets are near empty and no compute is running, so the real spend is a small fraction of a euro a month. That's just the S3, KMS, and CloudWatch minimums, with no NAT or compute charges. The next real cost will be Databricks DBU usage once compute is set up.
+Bootstrap and foundation are both applied, a VPC with no NAT gateway, 5 S3 buckets, a KMS key, and CloudWatch flow logs. Real spend is a small fraction of a euro a month, just the S3, KMS, and CloudWatch minimums. Full production and lab cost breakdowns are in [docs/cost-model.md](docs/cost-model.md).

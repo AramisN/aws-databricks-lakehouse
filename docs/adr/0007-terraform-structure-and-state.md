@@ -19,7 +19,7 @@ One config for everything means a single mistake can break everything, and the p
 
 Terraform 1.10 put a lock file inside the S3 backend, so the old DynamoDB lock table is not needed now. That is one less thing to make, pay for, and tear down. The state bucket keeps old versions and is encrypted with KMS, so a bad change can be rolled back and the state is safe at rest.
 
-## The chicken and egg, and how I deal with it
+## Bootstrap's state, the first-run problem
 
 Bootstrap makes the bucket that the state lives in, so on the first run bootstrap can't keep its own state there yet. Its state stays on my machine and out of git, and bootstrap almost never changes after the first run. Foundation and every part after it use the S3 backend from the start. This is the normal way to solve the loop, and I write it down in the infra README so it is not a surprise.
 

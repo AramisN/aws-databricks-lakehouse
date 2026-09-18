@@ -1,8 +1,6 @@
 # Architecture Decision Records
 
-This directory tracks Architecture Decision Records (ADRs) for the aws-databricks-lakehouse
-project. Each ADR captures a significant architectural decision, the context that drove it, and
-its consequences.
+Architecture Decision Records for aws-databricks-lakehouse.
 
 ## Index
 
@@ -17,6 +15,9 @@ its consequences.
 | [0007](0007-terraform-structure-and-state.md) | Terraform structure and state | Accepted |
 | [0008](0008-synthetic-data-generator-and-local-source.md) | The synthetic data generator and its local source | Accepted |
 | [0009](0009-streaming-events-through-kinesis.md) | Streaming the trip events through Kinesis | Accepted |
+| [0010](0010-hybrid-connectivity-simulated-on-prem.md) | A simulated on-prem VPC reached over a Site-to-Site VPN | Proposed |
+| [0011](0011-cdc-landing-with-dms.md) | Landing OLTP changes in the lake with DMS | Proposed |
+| [0012](0012-pii-in-the-cdc-path.md) | Personal data on the change-capture path | Proposed |
 
 ## ADR status model
 Status tells a reader whether a decision is still open or settled. The fine-grained, per-component build details live in the README status table, this index only tracks the decision itself.
