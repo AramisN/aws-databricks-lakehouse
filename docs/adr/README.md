@@ -19,6 +19,7 @@ Architecture Decision Records for aws-databricks-lakehouse.
 | [0011](0011-cdc-landing-with-dms.md) | Landing OLTP changes in the lake with DMS | *Proposed* |
 | [0012](0012-pii-in-the-cdc-path.md) | Personal data on the change-capture path | *Proposed* |
 | [0013](0013-ci-applies-with-approval.md) | CI applies to AWS, manually triggered with approval | **Accepted** |
+| [0014](0014-continuous-generation.md) | The generator runs continuously and feeds both outputs | *Proposed* |
 
 ## ADR status model
 Status tells a reader whether a decision is still open or settled. The fine-grained, per-component build details live in the README status table, this index only tracks the decision itself.
